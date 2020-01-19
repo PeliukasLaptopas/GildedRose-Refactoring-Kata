@@ -8,7 +8,7 @@ object GildedRoseError {
   case class UnknownItemCategoryError(item: Item) extends GildedError
   /*This could use a smart constructor to ensure that a given item actually has these negative fields: ItemField*
   * but for simplicity I'm just gonna leave it like this here because adding a smart constructor here wouldn't
-  * take much of a change in code*/
+  * take much of a change in code. Just don't want to over engineer it here for now*/
   case class NegativeItemFieldError(item: Item, negativeFields: ItemField*) extends GildedError
 
   trait ItemField

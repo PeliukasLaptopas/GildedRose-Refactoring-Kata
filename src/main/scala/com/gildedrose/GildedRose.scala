@@ -47,17 +47,18 @@ class GildedRose(val initialItems: Vector[Item]) {
     val maybeUpdatedItems = items.map(updateItem).sequence
 
     for {
-      validAreItems <- maybeValidItems
+      _ <- maybeValidItems
       updatedItems <- maybeUpdatedItems
     } yield updatedItems
   }
 
-  val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sellIn, quality) =>
+  private val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sellIn, quality) =>
     classifyItem(item).right.map {
         case Common => Item(name, decrease(sellIn, 1), Common.updateQuality(sellIn, quality))
         case Conjured => Item(name, decrease(sellIn, 1), Conjured.updateQuality(sellIn, quality))
         case BackStagePass => Item(name, decrease(sellIn, 1), BackStagePass.updateQuality(sellIn, quality))
         case Legendary => item
+        case Aged => Item(name, decrease(sellIn, 1), Aged.updateQuality(sellIn, quality))
       }
     }
 }

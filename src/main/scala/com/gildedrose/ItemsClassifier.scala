@@ -2,9 +2,16 @@ package com.gildedrose
 
 import GildedRose._
 import com.gildedrose.GildedRoseErrors.GildedRoseError.{GildedError, NegativeItemFieldError, Quality, SellIn, UnknownItemCategoryError}
+import com.gildedrose.ItemsClassifier.Aged
 
 object ItemsClassifier {
   trait Category
+  case object Aged extends Category {
+    def updateQuality(sellIn: Int, quality: Int): Int = {
+      val by = if (sellIn > 0) 1 else 0
+      increase(quality, by, 50)
+    }
+  }
   case object Legendary extends Category
   case object Conjured extends Category {
     def updateQuality(sellIn: Int, quality: Int): Int = {
@@ -13,7 +20,7 @@ object ItemsClassifier {
     }
   }
   case object Common extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int =  if (sellIn > 0) decrease(quality, 1) else quality
+    def updateQuality(sellIn: Int, quality: Int): Int =  decrease(quality, 1)
   }
   case object BackStagePass extends Category {
     def updateQuality(sellIn: Int, quality: Int): Int = {
@@ -34,8 +41,9 @@ object ItemsClassifier {
     Map(
       Legendary -> Vector("Sulfuras, Hand of Ragnaros"),
       Conjured -> Vector("Conjured Mana Cake"),
-      Common -> Vector("Aged Brie", "Elixir of the Mongoose", "+5 Dexterity Vest"),
-      BackStagePass -> Vector("Backstage passes to a TAFKAL80ETC concert")
+      Common -> Vector("Elixir of the Mongoose", "+5 Dexterity Vest"),
+      BackStagePass -> Vector("Backstage passes to a TAFKAL80ETC concert"),
+      Aged -> Vector("Aged Brie")
     )
   }
 
@@ -43,13 +51,15 @@ object ItemsClassifier {
     if(isCommon(item))        Right(Common) else
     if(isConjured(item))      Right(Conjured) else
     if(isBackStagePass(item)) Right(BackStagePass) else
-    if(isLegendary(item))     Right(Legendary) else Left(UnknownItemCategoryError(item))
+    if(isLegendary(item))     Right(Legendary) else
+    if(isAged(item))          Right(Aged) else Left(UnknownItemCategoryError(item))
   }
 
   private def isCommon(item: Item): Boolean =         ITEMS(Common).contains(item.name)
   private def isLegendary(item: Item): Boolean =      ITEMS(Legendary).contains(item.name)
   private def isConjured(item: Item): Boolean =       ITEMS(Conjured).contains(item.name)
   private def isBackStagePass(item: Item): Boolean =  ITEMS(BackStagePass).contains(item.name)
+  private def isAged(item: Item): Boolean =           ITEMS(Aged).contains(item.name)
 
   /*Option[NegativeItemFieldError] nesting results in poor ergonomics. Using monad transformers could help with this. Im using Either here*/
   def itemIsValid(item: Item): Either[NegativeItemFieldError, Unit] = {

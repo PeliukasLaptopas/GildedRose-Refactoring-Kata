@@ -1,13 +1,13 @@
 package com.gildedrose
 
-import ItemsClassifier._
-import GildedRose._
-import cats.data.ValidatedNel
-import com.gildedrose.GildedRoseErrors.GildedRoseError.{CouldNotUpdateItemError, GildedError}
 import cats.instances.either._
 import cats.instances.vector._
 import cats.syntax.traverse._
-import annotation.tailrec
+import com.gildedrose.GildedRose.decrease
+import com.gildedrose.GildedRoseErrors.GildedRoseError.GildedError
+import com.gildedrose.ItemsClassifier._
+
+import scala.annotation.tailrec
 
 object GildedRose {
   //Quality or sellIn will never be negative
@@ -43,7 +43,7 @@ class GildedRose(val initialItems: Vector[Item]) {
   }
 
   private def updateItems(items: Vector[Item]): Either[GildedError, Vector[Item]] = {
-    val maybeValidItems = items.map(itemIsValid).sequence
+    val maybeValidItems = items.map(itemFieldsAreValid).sequence
     val maybeUpdatedItems = items.map(updateItem).sequence
 
     for {

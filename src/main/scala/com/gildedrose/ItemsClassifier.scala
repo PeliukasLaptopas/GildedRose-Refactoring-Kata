@@ -7,10 +7,8 @@ import com.gildedrose.ItemsClassifier.Aged
 object ItemsClassifier {
   trait Category
   case object Aged extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int = {
-      val by = if (sellIn > 0) 1 else 0
-      increase(quality, by, 50)
-    }
+    def updateQuality(sellIn: Int, quality: Int): Int =
+      increase(quality, 1, 50)
   }
   case object Legendary extends Category
   case object Conjured extends Category {
@@ -20,12 +18,15 @@ object ItemsClassifier {
     }
   }
   case object Common extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int =  decrease(quality, 1)
+    def updateQuality(sellIn: Int, quality: Int): Int = {
+      val by = if(sellIn <= 0) 2 else 1 //Once sell time has passed it degrades twice as fast
+      decrease(quality, by)
+    }
   }
   case object BackStagePass extends Category {
     def updateQuality(sellIn: Int, quality: Int): Int = {
       val by =
-        if (sellIn > 10) Some(1) else
+        if (sellIn > 10)                Some(1) else
         if (sellIn <= 10 && sellIn > 5) Some(2) else
         if (sellIn <= 5 && sellIn >= 1) Some(3) else None
 
@@ -55,14 +56,14 @@ object ItemsClassifier {
     if(isAged(item))          Right(Aged) else Left(UnknownItemCategoryError(item))
   }
 
-  private def isCommon(item: Item): Boolean =         ITEMS(Common).contains(item.name)
-  private def isLegendary(item: Item): Boolean =      ITEMS(Legendary).contains(item.name)
-  private def isConjured(item: Item): Boolean =       ITEMS(Conjured).contains(item.name)
-  private def isBackStagePass(item: Item): Boolean =  ITEMS(BackStagePass).contains(item.name)
-  private def isAged(item: Item): Boolean =           ITEMS(Aged).contains(item.name)
+  private def isCommon(item: Item): Boolean =         ITEMS(Common).contains(item.name.trim)
+  private def isLegendary(item: Item): Boolean =      ITEMS(Legendary).contains(item.name.trim)
+  private def isConjured(item: Item): Boolean =       ITEMS(Conjured).contains(item.name.trim)
+  private def isBackStagePass(item: Item): Boolean =  ITEMS(BackStagePass).contains(item.name.trim)
+  private def isAged(item: Item): Boolean =           ITEMS(Aged).contains(item.name.trim)
 
   /*Option[NegativeItemFieldError] nesting results in poor ergonomics. Using monad transformers could help with this. Im using Either here*/
-  def itemIsValid(item: Item): Either[NegativeItemFieldError, Unit] = {
+  def itemFieldsAreValid(item: Item): Either[NegativeItemFieldError, Unit] = {
     if(item.sellIn < 0 && item.quality < 0) Left(NegativeItemFieldError(item, SellIn, Quality)) else
     if(item.sellIn < 0) Left(NegativeItemFieldError(item, SellIn)) else
     if(item.quality < 0) Left(NegativeItemFieldError(item, Quality)) else Right(())

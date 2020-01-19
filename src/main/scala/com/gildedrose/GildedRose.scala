@@ -2,6 +2,12 @@ package com.gildedrose
 
 import ItemsClassifier._
 import GildedRose._
+import cats.data.ValidatedNel
+import com.gildedrose.GildedRoseErrors.GildedRoseError.{CouldNotUpdateItemError, GildedError}
+import cats.instances.either._
+import cats.instances.vector._
+import cats.syntax.traverse._
+import annotation.tailrec
 
 object GildedRose {
   //Quality or sellIn will never be negative
@@ -14,42 +20,44 @@ object GildedRose {
 
   def increase(value: Int, by: Int, threshold: Int) = {
     val newQuality = value + by
-    if (value + by <= threshold)
+    if (newQuality <= threshold)
       newQuality
     else
       threshold
   }
 }
 
-/*We can use Partial functions .isDefined to represent which Item is
-  being iterated since we can not modify Item class to extend anything*/
-class GildedRose(val items: Vector[Item]) {
-  def updateQuality(): Unit = {
-    items.map {
-      updateCommon orElse
-      updateLegendary orElse
-      updateConjured orElse
-      updateBackStagePass
+class GildedRose(val initialItems: Vector[Item]) {
+  def play(days: Int): Either[GildedError, Vector[Item]] = {
+    @tailrec
+    def go(daysLeft: Int, acc: Vector[Item]): Either[GildedError, Vector[Item]] = {
+      if (daysLeft > 0) {
+        updateItems(acc) match { //This is not written in "updateQuality(acc).fold(<..>)" and instead in a 'match' because this needs to be a tailrec
+          case Right(updatedItems) => go(daysLeft - 1, updatedItems)
+          case err@ Left(_) => err
+        }
+      } else Right(acc)
     }
+
+    go(days, initialItems)
   }
 
-  private val updateCommon: PartialFunction[Item, Item] = {
-    case item @ Item(name, sellIn, quality) if ITEMS(Common).contains(name) =>
-      item.copy(name, decrease(sellIn, 1), Common.updateQuality(quality))
+  private def updateItems(items: Vector[Item]): Either[GildedError, Vector[Item]] = {
+    val maybeValidItems = items.map(itemIsValid).sequence
+    val maybeUpdatedItems = items.map(updateItem).sequence
+
+    for {
+      validAreItems <- maybeValidItems
+      updatedItems <- maybeUpdatedItems
+    } yield updatedItems
   }
 
-  private val updateConjured: PartialFunction[Item, Item] = {
-    case item @Item(name, sellIn, quality) if ITEMS(Conjured).contains(name) =>
-      val by = if (sellIn <= 0) 4 else 2
-      item.copy(name, decrease(sellIn, 1), Conjured.updateQuality(quality, by))
-  }
-
-  private val updateBackStagePass: PartialFunction[Item, Item] = {
-    case Item(name, sellIn, quality) if ITEMS(BackStagePass).contains(name) =>
-      Item(name, decrease(sellIn, 1), BackStagePass.updateQuality(sellIn, quality))
-  }
-
-  private val updateLegendary: PartialFunction[Item, Item] = {
-    case item: Item if ITEMS(Legendary).contains(item.name) => item
-  }
+  val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sellIn, quality) =>
+    classifyItem(item).right.map {
+        case Common => Item(name, decrease(sellIn, 1), Common.updateQuality(sellIn, quality))
+        case Conjured => Item(name, decrease(sellIn, 1), Conjured.updateQuality(sellIn, quality))
+        case BackStagePass => Item(name, decrease(sellIn, 1), BackStagePass.updateQuality(sellIn, quality))
+        case Legendary => item
+      }
+    }
 }

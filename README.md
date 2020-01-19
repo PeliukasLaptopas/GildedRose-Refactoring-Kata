@@ -43,7 +43,7 @@ val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sel
 
 Unfortunately, without being able to make our Item class abstract we can not do a lot of what scala provides. Firstly, SellIn and Quality fields should be wrappers so we could pattern match and write more ergonomical code. Because of that writing if statements aren't the prettiest:
 
-```
+```scala
 def classifyItem(item: Item): Either[GildedError, Category] = {
     val maybeClassifiedItem =
       if(isCommon(item))        Common.asRight else

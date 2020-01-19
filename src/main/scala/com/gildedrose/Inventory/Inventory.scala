@@ -7,7 +7,7 @@ object Inventory {
     A viable solution could be to store them into some sort of a serialized format (maybe JSON)
     For now we are sticking to a simple Map, HOWEVER =>
     If we decide to switch to JSON - this implementation wouldn't need much of a change.*/
-  val ITEMS: Map[Category, Vector[String]] = {
+  val ITEMS: Map[Category, Vector[String]] =
     Map(
       Legendary -> Vector("Sulfuras, Hand of Ragnaros"),
       Conjured -> Vector("Conjured Mana Cake"),
@@ -15,5 +15,4 @@ object Inventory {
       BackStagePass -> Vector("Backstage passes to a TAFKAL80ETC concert"),
       Aged -> Vector("Aged Brie")
     )
-  }
 }

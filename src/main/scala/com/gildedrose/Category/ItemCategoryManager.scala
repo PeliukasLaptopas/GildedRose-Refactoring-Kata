@@ -7,7 +7,7 @@ import com.gildedrose.ItemUtils.ItemFieldsManager._
 
 /*Handles each Category*/
 object ItemCategoryManager {
-  trait Category {
+  sealed trait Category {
     def updateQuality(sellIn: Int, quality: Int): Int
   }
   case object Legendary extends Category { //Do nothing but maybe later this could change so overriding is necessary

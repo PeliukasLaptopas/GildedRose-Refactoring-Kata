@@ -1,6 +1,6 @@
 # GildedRose-Refactoring-Kata in Scala
 
-Not being able to modifiy Item's class really limits our possibilities to refactor this code. Also, making it an abstract class would enable a lot of possibilities for great representations of each Item within each category.
+Not being able to modifiy Item's class really limits us to refactor this code. Also, making it an abstract class would enable a lot of possibilities for great representations of each Item within each category.
 
 That being said,
 I thought representing each Item in a Category by name would be a great solution if we ever would want to switch Inventory managment (maybe switch to JSON) and it is a very straight forward way to add any new Items to the current system (plus its easy to read).
@@ -38,5 +38,24 @@ val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sel
       case Aged =>          Item(name, decrease(sellIn, 1), Aged.updateQuality(sellIn, quality))
       case Legendary =>     item
     }
+  }
+```
+
+Unfortunately, without being able to make our Item class abstract we can not do a lot of what scala provides. So writing separate methods are a must. So for handling Item SellIn and Quality fields I have these methods:
+
+```scala
+def decrease(value: Int, by: Int) = {
+    if (value > by)
+      value - by
+    else /*Quality or sellIn will never be negative*/
+      0
+  }
+
+  def increase(value: Int, by: Int, threshold: Int) = {
+    val newQuality = value + by
+    if (newQuality <= threshold) /*Quality or sellIn will never be over a specific threshold*/
+      newQuality
+    else
+      threshold
   }
 ```

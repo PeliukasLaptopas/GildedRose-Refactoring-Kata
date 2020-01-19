@@ -1,5 +1,5 @@
 package com.gildedrose
 
-case class Item(val name: String, val sellIn: Int, val quality: Int) {
+case class Item(name: String, sellIn: Int, quality: Int) {
 
 }

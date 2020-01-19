@@ -1,9 +1,10 @@
 package com.gildedrose.Category
 
-import com.gildedrose.GildedRoseErrors.GildedRoseError.{NegativeItemFieldError, Quality, SellIn, UnknownItemCategoryError}
+import com.gildedrose.GildedRoseErrors.GildedRoseError.{GildedError, NegativeItemFieldError, Quality, SellIn, UnknownItemCategoryError}
 import com.gildedrose.Inventory.Inventory.ITEMS
 import com.gildedrose.Items.Item
 import com.gildedrose.ItemUtils.ItemFieldsManager._
+import cats.syntax.either._
 
 /*Handles each Category*/
 object ItemCategoryManager {
@@ -41,12 +42,19 @@ object ItemCategoryManager {
     }
   }
 
-  def classifyItem(item: Item): Either[UnknownItemCategoryError, Category] = {
-    if(isCommon(item))        Right(Common) else
-    if(isConjured(item))      Right(Conjured) else
-    if(isBackStagePass(item)) Right(BackStagePass) else
-    if(isLegendary(item))     Right(Legendary) else
-    if(isAged(item))          Right(Aged) else Left(UnknownItemCategoryError(item))
+  def classifyItem(item: Item): Either[GildedError, Category] = {
+    val maybeClassifiedItem =
+      if(isCommon(item))        Common.asRight else
+      if(isConjured(item))      Conjured.asRight else
+      if(isBackStagePass(item)) BackStagePass.asRight else
+      if(isLegendary(item))     Legendary.asRight else
+      if(isAged(item))          Aged.asRight else
+        UnknownItemCategoryError(item).asLeft
+
+    for {
+      _ <- itemFieldsAreValid(item)
+      classifiedItem <- maybeClassifiedItem
+    } yield classifiedItem
   }
 
   private def isCommon(item: Item): Boolean =         ITEMS(Common).contains(item.name.trim)
@@ -56,7 +64,7 @@ object ItemCategoryManager {
   private def isAged(item: Item): Boolean =           ITEMS(Aged).contains(item.name.trim)
 
   /*Option[NegativeItemFieldError] nesting results in poor ergonomics. Using monad transformers could help with this. Im using Either here*/
-  def itemFieldsAreValid(item: Item): Either[NegativeItemFieldError, Unit] = {
+  private def itemFieldsAreValid(item: Item): Either[NegativeItemFieldError, Unit] = {
     if(item.sellIn < 0 && item.quality < 0) Left(NegativeItemFieldError(item, SellIn, Quality)) else
     if(item.sellIn < 0) Left(NegativeItemFieldError(item, SellIn)) else
     if(item.quality < 0) Left(NegativeItemFieldError(item, Quality)) else Right(())

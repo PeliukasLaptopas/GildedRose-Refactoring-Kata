@@ -8,15 +8,7 @@ import cats.syntax.traverse._
 import com.gildedrose.ItemUtils.ItemFieldsManager._
 
 object ItemUpdateManager {
-  def updateItems(items: Vector[Item]): Either[GildedError, Vector[Item]] = {
-    val maybeValidItems = items.map(itemFieldsAreValid).sequence
-    val maybeUpdatedItems = items.map(updateItem).sequence
-
-    for {
-      _ <- maybeValidItems
-      updatedItems <- maybeUpdatedItems
-    } yield updatedItems
-  }
+  def updateItems(items: Vector[Item]): Either[GildedError, Vector[Item]] = items.map(updateItem).sequence
 
   val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sellIn, quality) =>
     classifyItem(item).right.map {

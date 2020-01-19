@@ -5,17 +5,6 @@
 Not being able to modifiy Item's class really limits us to refactor this code. Also, making it an abstract class would enable a lot of possibilities for great representations of each Item within each category. Fields could have a wrapper for pattern matching and it would be way easier to not even write code but to read it as well because it would have a lot more power and semantic meaning.
 
 That being said,
-I thought representing each Item in a Category by name would be a great solution if we ever would want to switch Inventory managment (maybe switch to JSON) and it is a very straight forward way to add any new Items to the current system (plus its easy to read).
-```scala
-val ITEMS: Map[Category, Vector[String]] =
-    Map(
-      Legendary -> Vector("Sulfuras, Hand of Ragnaros"),
-      Conjured -> Vector("Conjured Mana Cake"),
-      Common -> Vector("Elixir of the Mongoose", "+5 Dexterity Vest"),
-      BackStagePass -> Vector("Backstage passes to a TAFKAL80ETC concert"),
-      Aged -> Vector("Aged Brie")
-    )
-```
 
 My main goal was as always make code semantically correct and readable. Scala's trait are a great way to represent our Inventory system even without being able to modify our Item class.
 
@@ -28,6 +17,19 @@ My main goal was as always make code semantically correct and readable. Scala's 
   case object Common extends Category { <...> }
   case object BackStagePass extends Category { <...> }
   ```
+
+I thought representing each Item in a Category by name would be a great solution if we ever would want to switch Inventory managment (maybe switch to JSON) and it is a very straight forward way to add any new Items to the current system (plus its easy to read).
+
+```scala
+val ITEMS: Map[Category, Vector[String]] =
+    Map(
+      Legendary -> Vector("Sulfuras, Hand of Ragnaros"),
+      Conjured -> Vector("Conjured Mana Cake"),
+      Common -> Vector("Elixir of the Mongoose", "+5 Dexterity Vest"),
+      BackStagePass -> Vector("Backstage passes to a TAFKAL80ETC concert"),
+      Aged -> Vector("Aged Brie")
+    )
+```
 
 By doing so, it gets very readable and easy to change when deciding on how to handle each Items behaviour
 

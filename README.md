@@ -15,7 +15,7 @@ val ITEMS: Map[Category, Vector[String]] =
     )
 ```
 
-My main goal was as always make code semantically correct and readable. Scalas trait are a great way to represent our Inventory system even without being able to modify our Item class.
+My main goal was as always make code semantically correct and readable. Scala's trait are a great way to represent our Inventory system even without being able to modify our Item class.
 
 ```scala
 
@@ -41,7 +41,25 @@ val updateItem: Item => Either[GildedError, Item] = { case item @ Item(name, sel
   }
 ```
 
-Unfortunately, without being able to make our Item class abstract we can not do a lot of what scala provides. So writing separate methods are a must. So for handling Item SellIn and Quality fields I have these methods:
+Unfortunately, without being able to make our Item class abstract we can not do a lot of what scala provides. Firstly, SellIn and Quality fields should be wrappers so we could pattern match and write more ergonomical code. Because of that writing if statements aren't the prettiest:
+
+```
+def classifyItem(item: Item): Either[GildedError, Category] = {
+    val maybeClassifiedItem =
+      if(isCommon(item))        Common.asRight else
+      if(isConjured(item))      Conjured.asRight else
+      if(isBackStagePass(item)) BackStagePass.asRight else
+      if(isLegendary(item))     Legendary.asRight else
+      if(isAged(item))          Aged.asRight else
+        UnknownItemCategoryError(item).asLeft
+
+    for {
+      _ <- itemFieldsAreValid(item)
+      classifiedItem <- maybeClassifiedItem
+    } yield classifiedItem
+```
+
+Because we dont have wrappers for Item's fields - writing separate methods to modify them is a must. So for handling Item SellIn and Quality fields I have these methods:
 
 ```scala
 def decrease(value: Int, by: Int) = {

@@ -1,30 +1,37 @@
-package com.gildedrose
+package com.gildedrose.Category
 
-import GildedRose._
-import com.gildedrose.GildedRoseErrors.GildedRoseError.{GildedError, NegativeItemFieldError, Quality, SellIn, UnknownItemCategoryError}
-import com.gildedrose.ItemsClassifier.Aged
+import com.gildedrose.GildedRoseErrors.GildedRoseError.{NegativeItemFieldError, Quality, SellIn, UnknownItemCategoryError}
+import com.gildedrose.Inventory.Inventory.ITEMS
+import com.gildedrose.Items.Item
+import com.gildedrose.ItemUtils.ItemFieldsManager._
 
-object ItemsClassifier {
-  trait Category
+/*Handles each Category*/
+object ItemCategoryManager {
+  trait Category {
+    def updateQuality(sellIn: Int, quality: Int): Int
+  }
+  case object Legendary extends Category { //Do nothing but maybe later this could change so overriding is necessary
+    override def updateQuality(sellIn: Int, quality: Int): Int =
+      quality
+  }
   case object Aged extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int =
+    override def updateQuality(sellIn: Int, quality: Int): Int =
       increase(quality, 1, 50)
   }
-  case object Legendary extends Category
   case object Conjured extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int = {
+    override def updateQuality(sellIn: Int, quality: Int): Int = {
       val by = if (sellIn <= 0) 4 else 2
       decrease(quality, by)
     }
   }
   case object Common extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int = {
+    override def updateQuality(sellIn: Int, quality: Int): Int = {
       val by = if(sellIn <= 0) 2 else 1 //Once sell time has passed it degrades twice as fast
       decrease(quality, by)
     }
   }
   case object BackStagePass extends Category {
-    def updateQuality(sellIn: Int, quality: Int): Int = {
+    override def updateQuality(sellIn: Int, quality: Int): Int = {
       val by =
         if (sellIn > 10)                Some(1) else
         if (sellIn <= 10 && sellIn > 5) Some(2) else
@@ -32,20 +39,6 @@ object ItemsClassifier {
 
       by.fold(0)(by => increase(quality, by, 50))
     }
-  }
-
-  /*There could be over +1000 items. Putting them for semantics into case object's doesn't sound reasonable.
-    A viable solution could be to store them into some sort of a serialized format (maybe JSON)
-    For now we are sticking to a simple Map, HOWEVER =>
-    If we decide to switch to JSON - this implementation wouldn't need much of a change.*/
-  val ITEMS: Map[Category, Vector[String]] = {
-    Map(
-      Legendary -> Vector("Sulfuras, Hand of Ragnaros"),
-      Conjured -> Vector("Conjured Mana Cake"),
-      Common -> Vector("Elixir of the Mongoose", "+5 Dexterity Vest"),
-      BackStagePass -> Vector("Backstage passes to a TAFKAL80ETC concert"),
-      Aged -> Vector("Aged Brie")
-    )
   }
 
   def classifyItem(item: Item): Either[UnknownItemCategoryError, Category] = {

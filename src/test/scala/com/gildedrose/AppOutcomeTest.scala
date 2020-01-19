@@ -3,6 +3,7 @@ package com.gildedrose
 import com.gildedrose.GildedRoseErrors.GildedRoseError.GildedError
 import org.scalatest._
 import cats.syntax.either._
+import com.gildedrose.Items.Item
 
 class AppOutcomeTest  extends FunSpec with Matchers {
   describe("app.play()") {
@@ -22,7 +23,7 @@ class AppOutcomeTest  extends FunSpec with Matchers {
 
       val itemsAfterUpdate: Either[GildedError, Vector[Item]] = Vector[Item](
         Item("+5 Dexterity Vest", 0, 10),
-        Item("Aged Brie", 0, 2),
+        Item("Aged Brie", 0, 10),
         Item("Elixir of the Mongoose", 0, 0),
         Item("Sulfuras, Hand of Ragnaros", 0, 80),
         Item("Sulfuras, Hand of Ragnaros", 1, 80),
@@ -32,7 +33,7 @@ class AppOutcomeTest  extends FunSpec with Matchers {
         Item("Conjured Mana Cake", 0, 0)).asRight
 
       val app = new GildedRose(itemsBeforeUpdate)
-      val outcome = app.play(DAYS)
+      val outcome = app.update(DAYS)
 
       outcome shouldBe itemsAfterUpdate
     }
@@ -47,7 +48,7 @@ class AppOutcomeTest  extends FunSpec with Matchers {
         Item("Turn 4 lethal?", 2, 0))
 
       val app = new GildedRose(itemsBeforeUpdate)
-      val outcome = app.play(DAYS)
+      val outcome = app.update(DAYS)
 
       outcome shouldBe 'left
     }
@@ -61,7 +62,7 @@ class AppOutcomeTest  extends FunSpec with Matchers {
         Item("+5 Dexterity Vest", -10, 20))
 
       val app = new GildedRose(itemsBeforeUpdate)
-      val outcome = app.play(DAYS)
+      val outcome = app.update(DAYS)
 
       outcome shouldBe 'left
     }

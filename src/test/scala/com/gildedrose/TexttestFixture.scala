@@ -1,8 +1,8 @@
 package com.gildedrose
 
-import com.typesafe.scalalogging.LazyLogging
+import com.gildedrose.Items.Item
 
-object TexttestFixture extends LazyLogging {
+object TexttestFixture {
   private val initialItems: Vector[Item] = Vector[Item](
     Item("+5 Dexterity Vest", 10, 20),
     Item("Aged Brie", 2, 0),
@@ -17,13 +17,13 @@ object TexttestFixture extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
     val app = new GildedRose(initialItems)
-    val days = if (args.length > 0) args(0).toInt + 1 else 2
+    val days = if (args.length > 0) args(0).toInt else 2
     printOutcome(app, days)
   }
 
   /*Using some sort of library might be great (maybe SLF4J for quick and easy 'lazy logging')*/
   def printOutcome(app: GildedRose, days: Int): Unit = {
-    val outcome = app.play(days)
+    val outcome = app.update(days)
     outcome.fold(println, items => {
       println("name, sellIn, quality")
       items.foreach(i => println(s"${i.name}, ${i.sellIn}, ${i.quality}"))

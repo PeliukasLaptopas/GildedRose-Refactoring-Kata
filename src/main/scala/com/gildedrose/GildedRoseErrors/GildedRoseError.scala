@@ -1,6 +1,6 @@
 package com.gildedrose.GildedRoseErrors
 
-import com.gildedrose.Item
+import com.gildedrose.Items.Item
 
 object GildedRoseError {
   trait GildedError

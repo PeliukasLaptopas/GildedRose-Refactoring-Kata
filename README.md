@@ -85,3 +85,23 @@ def decrease(value: Int, by: Int) = {
       threshold
   }
 ```
+
+#TESTS
+
+There could never be to many tests, huh? Didn't spend to much time on it but I think i covered the most important ones. For example:
+
+```scala
+describe("UpdateItem()") {
+    it("should correctly update a common Item") {
+      val commonItemBeforeUpdate = Item("+5 Dexterity Vest", 5, 20)
+      val commonItemAfterUpdate: Either[GildedError, Item] =  Item("+5 Dexterity Vest", 4, 19).asRight
+
+      val commonUpdatedItem = ItemUpdateManager.updateItem(commonItemBeforeUpdate)
+
+      commonUpdatedItem shouldBe commonItemAfterUpdate
+    }
+    
+  ...
+  ...
+  ...
+```

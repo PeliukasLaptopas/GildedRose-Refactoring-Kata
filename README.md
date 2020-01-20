@@ -86,7 +86,7 @@ def decrease(value: Int, by: Int) = {
   }
 ```
 
-#TESTS
+# TESTS
 
 There could never be to many tests, huh? Didn't spend to much time on it but I think i covered the most important ones. For example:
 

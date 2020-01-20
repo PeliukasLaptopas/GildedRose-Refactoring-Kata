@@ -21,7 +21,9 @@ My main goal was as always make code semantically correct and readable. Scala's 
 I thought representing each Item in a Category by name would be a great solution if we ever would want to switch Inventory managment (maybe switch to JSON) and it is a very straight forward way to add any new Items to the current system (plus its easy to read).
 
 ```scala
-val ITEMS: Map[Category, Vector[String]] =
+type ItemName = String
+
+val ITEMS: Map[Category, Vector[ItemName]] =
     Map(
       Legendary -> Vector("Sulfuras, Hand of Ragnaros"),
       Conjured -> Vector("Conjured Mana Cake"),

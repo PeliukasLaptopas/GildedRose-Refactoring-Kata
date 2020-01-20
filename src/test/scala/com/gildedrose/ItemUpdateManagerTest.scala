@@ -60,5 +60,27 @@ class ItemUpdateManagerTest  extends FunSpec with Matchers {
         agedUpdatedItem shouldBe agedItemAfterUpdate
       }
     }
+
+    describe("UpdateItem()") {
+      it("Once the sell by date has passed, Quality degrades twice as fast") {
+        val agedItemBeforeUpdate = Item("+5 Dexterity Vest", 0, 20)
+        val agedItemAfterUpdate: Either[GildedError, Item] =  Item("+5 Dexterity Vest", 0, 18).asRight
+
+        val agedUpdatedItem = ItemUpdateManager.updateItem(agedItemBeforeUpdate)
+
+        agedUpdatedItem shouldBe agedItemAfterUpdate
+      }
+    }
+
+    describe("UpdateItem()") {
+      it("BackStagePasses quality drops to 0 when sellIn is 0") {
+        val agedItemBeforeUpdate = Item("Backstage passes to a TAFKAL80ETC concert", 0, 20)
+        val agedItemAfterUpdate: Either[GildedError, Item] =  Item("Backstage passes to a TAFKAL80ETC concert", 0, 0).asRight
+
+        val agedUpdatedItem = ItemUpdateManager.updateItem(agedItemBeforeUpdate)
+
+        agedUpdatedItem shouldBe agedItemAfterUpdate
+      }
+    }
   }
 }

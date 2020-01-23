@@ -1,7 +1,3 @@
-# GildedRose-Refactoring-Kata in Scala
-
-# PROBLEM AND SOLUTION
-
 ## This could be solved using Partial functions, however I thought my approach was more ergonomic.
 
 Not being able to modifiy Item's class really limits us to refactor this code. Also, making it an abstract class would enable a lot of possibilities for better representations of each Item within each category. Fields could have a wrapper for pattern matching and it would be way easier to not even write code but to read it as well because it would have a lot more power and semantic meaning.

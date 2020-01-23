@@ -12,6 +12,6 @@ object GildedRoseError {
   final case class NegativeItemFieldError(item: Item, negativeFields: ItemField*) extends GildedError
 
   sealed trait ItemField
-  final case object SellIn extends ItemField
-  final case object Quality extends ItemField
+  case object SellIn extends ItemField
+  case object Quality extends ItemField
 }
